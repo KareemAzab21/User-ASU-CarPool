@@ -32,6 +32,17 @@ void Reading()async{
       _firstNameController.text=userRow['firstname'].toString();
       _lastNameController.text=userRow['lastname'].toString();
       _passwordController.text='';
+      var connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult != ConnectivityResult.none) {
+
+        await firestore.collection("users").doc(currentUser!.uid)
+            .update({
+          'firstname': _firstNameController.text,
+          'lastname': _lastNameController.text
+        });
+      }
+
+
       setState(() {
         _firstNameController.text=userRow['firstname'].toString();
         _lastNameController.text=userRow['lastname'].toString();
