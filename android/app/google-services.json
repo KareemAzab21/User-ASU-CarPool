@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "621434201995",
+    "firebase_url": "https://asu-carpool-service-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "asu-carpool-service",
+    "storage_bucket": "asu-carpool-service.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621434201995:android:2abb3fa9209d25dafcf18e",
+        "android_client_info": {
+          "package_name": "com.example.user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASuF7FHNvulHvJAPF6VonO1mViLWdzmss"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
