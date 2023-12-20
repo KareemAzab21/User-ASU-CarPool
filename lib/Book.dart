@@ -320,15 +320,47 @@ class RideBookingPage extends StatelessWidget {
                                       content: Text("The cutoff time for this ride has passed."),
                                       actions: <Widget>[
                                         TextButton(
-                                          child: Text("OK"),
-                                          onPressed: () {
+                                          child: Text("ByPass"),
+                                          onPressed: () async{
+
+                                            String driver_name=await getDriverName(rides[index].driver);
+                                            User? currentUser = FirebaseAuth.instance.currentUser;
+                                            String id=currentUser!.uid;
+                                            DocumentReference requestDoc = FirebaseFirestore.instance.collection('requests').doc(rides[index].driver);
+                                            DocumentReference historyDoc = FirebaseFirestore.instance.collection('history').doc(id);
+
+                                            Map<String, dynamic> updateData = {
+                                              'fromLocation': rides[index].fromLocation,
+                                              'toLocation': rides[index].toLocation,
+                                              'date': rides[index].date, // Firestore can handle DateTime objects directly
+                                              'driver': driver_name,
+                                              'time':rides[index].time,
+                                              'price': rides[index].price,
+                                              'status': 'pending',
+                                              'user':id,
+                                              'username':name,
+                                              'id':rides[index].id,
+                                            };
+
+                                            await requestDoc
+                                                .update({
+                                              'Requests': FieldValue.arrayUnion([updateData]) // Appends the new ride data to the ridesList array
+                                            });
+                                            await historyDoc
+                                                .update({
+                                              'History': FieldValue.arrayUnion([updateData]) // Appends the new ride data to the ridesList array
+                                            });
                                             Navigator.of(context).pop();
+
+
+
                                           },
                                         ),
                                       ],
                                     );
                                   },
                                 );
+                                _showPaymentOptions(context);
                                 return;
                               }
 
