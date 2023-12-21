@@ -5,21 +5,24 @@ import 'package:firebase_core/firebase_core.dart';
 import 'Home.dart';
 import 'Profile.dart';
 import 'main.dart';
+import 'History.dart';
 
 import 'History.dart';
 void main() => runApp(Book());
 
 class Book extends StatelessWidget {
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Ride Booking',
+      key: scaffoldMessengerKey,
       home: RideBookingPage(),
       routes: {
         '/Home':(context)=>Home(),
         '/Profile':(context)=>EditProfilePage(),
         '/Signout':(context)=>MyApp(),
-        '/History':(context)=>RideHistoryPage(),
+        '/history':(context)=>RideHistoryPage(),
 
       },
     );
@@ -95,6 +98,7 @@ class RideBookingPage extends StatelessWidget {
   }
 
   void _showPaymentOptions(BuildContext context) {
+
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) {
@@ -139,10 +143,11 @@ class RideBookingPage extends StatelessWidget {
         }
     );
   }
-
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldMessengerKey,
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -311,8 +316,14 @@ class RideBookingPage extends StatelessWidget {
 
                               // Check if current time is after the cutoff
                               if (DateTime.now().isAfter(cutoff)) {
+                                String driver_name=await getDriverName(rides[index].driver);
+                                User? currentUser = FirebaseAuth.instance.currentUser;
+                                String id=currentUser!.uid;
+                                DocumentReference requestDoc = FirebaseFirestore.instance.collection('requests').doc(rides[index].driver);
+                                DocumentReference historyDoc = FirebaseFirestore.instance.collection('history').doc(id);
+                                bool flag=false;
                                 // Show message that the cutoff time has passed
-                                showDialog(
+                               await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
@@ -322,12 +333,8 @@ class RideBookingPage extends StatelessWidget {
                                         TextButton(
                                           child: Text("ByPass"),
                                           onPressed: () async{
-
-                                            String driver_name=await getDriverName(rides[index].driver);
-                                            User? currentUser = FirebaseAuth.instance.currentUser;
-                                            String id=currentUser!.uid;
-                                            DocumentReference requestDoc = FirebaseFirestore.instance.collection('requests').doc(rides[index].driver);
-                                            DocumentReference historyDoc = FirebaseFirestore.instance.collection('history').doc(id);
+                                            flag=true;
+                                            Navigator.pop(context);
 
                                             Map<String, dynamic> updateData = {
                                               'fromLocation': rides[index].fromLocation,
@@ -350,17 +357,24 @@ class RideBookingPage extends StatelessWidget {
                                                 .update({
                                               'History': FieldValue.arrayUnion([updateData]) // Appends the new ride data to the ridesList array
                                             });
-                                            Navigator.of(context).pop();
 
 
 
                                           },
                                         ),
+                                        TextButton(onPressed: (){
+                                          Navigator.of(context).pop();
+
+                                        },
+                                            child: Text('OK')),
                                       ],
                                     );
                                   },
                                 );
-                                _showPaymentOptions(context);
+                               if(flag) {
+                                 Navigator.pushReplacementNamed(
+                                     context, '/history');
+                               }
                                 return;
                               }
 
